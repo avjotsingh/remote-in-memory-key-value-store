@@ -17,56 +17,88 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
 
     def Read(self, request, context):
         key = request.key
-        if key is None:
+        # Check if read proto is invalid
+        if key is None or key == '':
             status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid read proto')
             return keyval_pb2.ReadResponse(status=status)
-        elif key not in self.keyval_store:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Read aborted. Key not aborted %s'%key)
-            return keyval_pb2.ReadResponse(status=status)
-        else:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
-            return keyval_pb2.ReadResponse(status=status, key=key, value=self.keyval_store[key]['value'], current_version=self.keyval_store[key]['version'])
         
+        # Check for erroneous conditions
+        # Check if trying to read a key, but the key does not exist
+        if key not in self.keyval_store:
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Read aborted. Key not present %s'%key)
+            return keyval_pb2.ReadResponse(status=status)
+        
+        # Read request is valid. Perform the read operation
+        status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
+        return keyval_pb2.ReadResponse(status=status, key=key, value=self.keyval_store[key]['value'], current_version=self.keyval_store[key]['version'])
+    
     def Write(self, request, context):
         key = request.key
         value = request.value
         current_version = request.current_version
-        if key is None or current_version == 0:
+        # Check if write proto is invalid
+        if key is None or key == '' or value is None or value == '' or current_version == 0:
             status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid write proto')
             return keyval_pb2.WriteResponse(status=status)
-        elif value is None:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Write aborted. Record missing but Write expected value to exist at version %d'%self.keyval_store[key]['version'])
-            return keyval_pb2.WriteResponse(status=status, key=key, new_version=current_version+1)
-        elif current_version < 0:
+        
+        # Blind write
+        if current_version < 0:
             self.keyval_store[key] = {'value': value, 'version': 1}
             status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
             return keyval_pb2.WriteResponse(status=status, key=key, new_version=1)
-        elif current_version == self.keyval_store[key]['version']:
-            new_version = current_version + 1
-            self.keyval_store[key]['version'] = new_version
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
-            return keyval_pb2.WriteResponse(status=status, key=key, new_version=new_version)
-        else:
+        
+        # Check for erroneous conditions
+        # Check if trying to overwrite the value of a key, but the key does not exist
+        if key not in self.keyval_store:
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Write aborted. Record missing but Write expected value to exist at version %d'%current_version)
+            return keyval_pb2.WriteResponse(status=status, key=key, new_version=current_version+1)      
+        
+        # Check if there is a version mismatch
+        if current_version != self.keyval_store[key]['version']:
             status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Write aborted. Record version mismatch. Expected = %d, Actual = %d'%(current_version, self.keyval_store[key]['version']))
-            return keyval_pb2.WriteResponse(status=status, key=key, new_version=self.keyval_store[key]['version'])
+            return keyval_pb2.WriteResponse(status=status, key=key, new_version=current_version+1)
+        
+        # Write Request is valid. Update value and version
+        new_version = current_version + 1
+        self.keyval_store[key]['version'] = new_version
+        self.keyval_store[key]['value'] = value
+        status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
+        return keyval_pb2.WriteResponse(status=status, key=key, new_version=new_version)
 
     def Delete(self, request, context):
         key = request.key
         current_version = request.current_version
-        if key is None or current_version == 0:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete proto invalid')
+
+        # Check if delete proto is invalid
+        if key is None or key == '' or current_version == 0:
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid delete proto')
             return keyval_pb2.DeleteResponse(status=status)
-        elif key not in self.keyval_store:
+
+        # Check for erroneous conditions
+        # Check if trying to delete a key, but the key does not exist
+        if key not in self.keyval_store:
             status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Key not present %s'%key)
             return keyval_pb2.DeleteResponse(status=status)
-        elif current_version < 0 or self.keyval_store[key]['version'] == current_version:
-            deleted_value = self.keyval_store[key]['value']
-            deleted_version = self.keyval_store[key]['version']
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
-            return keyval_pb2.DeleteResponse(status=status, key=key, deleted_value=deleted_value, deleted_version=deleted_version)
-        else:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Record version mismatch. Expected = %d, Actual = %d'%(self.keyval_store[key]['version'], current_version))
-            return keyval_pb2.DeleteResponse(status=status)
+
+        # Check if there is a version mismatch
+        if current_version > 0 and current_version != self.keyval_store[key]['version']:
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Record version mismatch. Expected = %d, Actual = %d'%(current_version, self.keyval_store[key]['version']))
+            return keyval_pb2.DeleteResponse(status=status)            
+        
+        # Delete Request is valid. Delete the key.
+        deleted_value = self.keyval_store[key]['value']
+        deleted_version = self.keyval_store[key]['version']
+        self.keyval_store.pop(key)
+        status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
+        return keyval_pb2.DeleteResponse(status=status, key=key, deleted_value=deleted_value, deleted_version=deleted_version)
+
+    def List(self, request, context):
+        entries = []
+        for key in self.keyval_store:
+            entry = keyval_pb2.Entry(key=key, value=self.keyval_store[key]['value'], current_version=self.keyval_store[key]['version'])
+            entries.append(entry)
+        status = keyval_pb2.Status(server_id=SERVER_ID, ok=True)
+        return keyval_pb2.ListResponse(status=status, entries=entries)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
