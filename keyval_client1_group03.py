@@ -2,18 +2,22 @@
 
 from __future__ import print_function
 import logging
-
 import grpc
 
 import keyval_pb2
 import keyval_pb2_grpc
 
+
+def read_key(stub, key):
+    response = stub.Read(keyval_pb2.ReadRequest(key=key))
+    return response
+
 def write_key(stub, key, value, version):
     response = stub.Write(keyval_pb2.WriteRequest(key=key, value=value, current_version=version))
     return response
 
-def read_key(stub, key):
-    response = stub.Read(keyval_pb2.ReadRequest(key=key))
+def delete_key(stub, key, version):
+    response = stub.Delete(keyval_pb2.DeleteRequest(key=key, current_version=version))
     return response
 
 def run():
