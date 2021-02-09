@@ -8,6 +8,7 @@ from grpc_reflection.v1alpha import reflection
 import logging
 import sys
 import argparse
+import time
 
 import keyval_pb2
 import keyval_pb2_grpc
@@ -36,6 +37,9 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
         return keyval_pb2.ReadResponse(status=status, key=key, value=self.keyval_store[key]['value'], current_version=self.keyval_store[key]['version'])
     
     def Write(self, request, context):
+        # Add some delay before beginning to process the write request
+        time.sleep(WRITE_DELAY)
+        
         key = request.key
         value = request.value
         current_version = request.current_version
@@ -113,6 +117,7 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
 
     def List(self, request, context):
         entries = []
+        # Iterate over all the items in the key-value store and store them in a list
         for key in self.keyval_store:
             entry = keyval_pb2.Entry(key=key, value=self.keyval_store[key]['value'], current_version=self.keyval_store[key]['version'])
             entries.append(entry)
@@ -132,10 +137,11 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    # Add a command line argument parser
     parser = argparse.ArgumentParser(description='KeyVal Server arguments')
     parser.add_argument('--server_id', type=int, help='The id of the server.', default=1)
     parser.add_argument('--write_delay', type=int, help='The delay in seconds that is added to the Write RPC handling in the server,\
-         i.e., before the Write RPC is handled on the server side.')
+         i.e., before the Write RPC is handled on the server side.', default=0)
     parser.add_argument('--port', type=int, help='The port on which the server listens.', default=50050)
     args = parser.parse_args()
 
