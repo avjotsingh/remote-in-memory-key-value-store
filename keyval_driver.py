@@ -96,7 +96,6 @@ def ExecuteWrite(key, value, current_version, success):
     process_result = Run(grpc_cli, CallParams("Write", write_proto))
     output_str = process_result.stdout.decode("utf-8")
     response = keyval_pb2.WriteResponse()
-    print(response)
     print("Write Result:")
     print(text_format.Parse(output_str, response))
     assert response.status.ok == success, "Write call expected %s" % success

@@ -10,21 +10,25 @@ import keyval_pb2_grpc
 
 def read_key(stub, key):
     response = stub.Read(keyval_pb2.ReadRequest(key=key))
+    print("Read Result:")
     print_response(response)
     # return response
 
 def write_key(stub, key, value, version):
     response = stub.Write(keyval_pb2.WriteRequest(key=key, value=value, current_version=version))
+    print("Write Result:")
     print_response(response)
     # return response
 
 def delete_key(stub, key, version):
     response = stub.Delete(keyval_pb2.DeleteRequest(key=key, current_version=version))
+    print("Delete Result:")
     print_response(response)
     # return response
 
 def list_entries(stub):
     response = stub.List(keyval_pb2.ListRequest())
+    print("List Result:")
     print_response(response)
     # return response
 

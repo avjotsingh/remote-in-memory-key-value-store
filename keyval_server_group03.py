@@ -1,7 +1,10 @@
 """Python implementation of KeyValue service"""
 
 from concurrent import futures
+
 import grpc
+from grpc_reflection.v1alpha import reflection
+
 import logging
 import sys
 import argparse
@@ -19,7 +22,7 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
         key = request.key
         # Check if read proto is invalid
         if key is None or key == '':
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid read proto')
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid read proto ')
             return keyval_pb2.ReadResponse(status=status)
         
         # Check for erroneous conditions
@@ -38,7 +41,16 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
         current_version = request.current_version
         # Check if write proto is invalid
         if key is None or key == '' or value is None or value == '' or current_version == 0:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid write proto')
+            error_string = 'Invalid write proto '
+            # Find the first valid field in the proto and append to the error string
+            if key is not None and key != '':
+                error_string += 'key: "%s"\n'%key
+            elif value is not None and value != '':
+                error_string += 'value: "%s"\n'%value
+            elif current_version != 0:
+                error_string += 'current_version: %s\n'%current_version
+
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error=error_string)
             return keyval_pb2.WriteResponse(status=status)
         
         # Blind write
@@ -71,18 +83,25 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
 
         # Check if delete proto is invalid
         if key is None or key == '' or current_version == 0:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Invalid delete proto')
+            error_string = 'Invalid delete proto '
+            # Find the first valid field in the proto and append it to the error string
+            if key is not None and key != '':
+                error_string += 'key: "%s"\n'%key
+            elif current_version != 0:
+                error_string += 'current_version: %s\n'%current_version
+
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error=error_string)
             return keyval_pb2.DeleteResponse(status=status)
 
         # Check for erroneous conditions
         # Check if trying to delete a key, but the key does not exist
         if key not in self.keyval_store:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Key not present %s'%key)
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Key not present %s'%key)
             return keyval_pb2.DeleteResponse(status=status)
 
         # Check if there is a version mismatch
         if current_version > 0 and current_version != self.keyval_store[key]['version']:
-            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Record version mismatch. Expected = %d, Actual = %d'%(current_version, self.keyval_store[key]['version']))
+            status = keyval_pb2.Status(server_id=SERVER_ID, ok=False, error='Delete aborted. Record version mismatch: Expected = %d, Actual = %d'%(current_version, self.keyval_store[key]['version']))
             return keyval_pb2.DeleteResponse(status=status)            
         
         # Delete Request is valid. Delete the key.
@@ -103,6 +122,11 @@ class KeyValueServicer(keyval_pb2_grpc.KeyValueServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     keyval_pb2_grpc.add_KeyValueServicer_to_server(KeyValueServicer(), server)
+    SERVICE_NAMES = (
+        keyval_pb2.DESCRIPTOR.services_by_name['KeyValue'].full_name,
+        reflection.SERVICE_NAME,
+    )
+    reflection.enable_server_reflection(SERVICE_NAMES, server)
     server.add_insecure_port('localhost:%s'%PORT_NO)
     server.start()
     server.wait_for_termination()
