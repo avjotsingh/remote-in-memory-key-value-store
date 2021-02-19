@@ -38,87 +38,48 @@ def print_response(response):
   print(response)
   print("-"*30)
 
-def experiment1_part1(stub):
-  # Define the keys value pairs to write
-  key_values = {"Key" + str(i) : "Value" + str(i) for i in range(5)}
+def run(stub):
+  channel = grpc.insecure_channel('localhost:50050')
+  try:
+    grpc.channel_ready_future(channel).result(timeout=10)
+  except grpc.FutureTimeoutError:
+    sys.exit('Error connecting to server')
+  else:
+    stub = keyval_pb2_grpc.KeyValueStub(channel)
 
-  # Send five blind write RPCs to the server with 'Key<i>' where i ranges from 0 to 4
-  for key, value in key_values.items():
-    write_key(stub, key, value, -1)
-
-  # Sleep for 5 seconds
-  time.sleep(5)
-
-  # List RPC
-  list_entries(stub)
-
-  # Blind delete all the keys
-  for key in key_values:
-    delete_key(stub, key, -1)
-
-def experiment1_part2(stub):
-  # Define the keys value pairs to write
-  key_values = {"Key" + str(i) : "Value" + str(i) for i in range(5)}
-
-  # Send five blind write RPCs to the server with 'Key<i>' where i ranges from 0 to 4
-  for key, value in key_values.items():
-    write_key(stub, key, value, -1)
-
-  # List RPC
-  list_entries(stub)
-
-  # Blind delete all the keys
-  for key in key_values:
-    delete_key(stub, key, -1)
-
-def experiment2(stub):
   # Blind write
   write_key(stub, "Key1", "Value1", -1)
+  # Normal write
+  write_key(stub, "Key1", "Value2", 1)
+  # Version check failure
+  write_key(stub, "Key1", "Value3", 1)
+  # Version failure with key missing
+  write_key(stub, "Key2", "Value3", 1)
 
-  # Blind delete
-  delete_key(stub, "Key1", -1)
+  # Normal read
+  read_key(stub, "Key1")
+  # Non-existing key read
+  read_key(stub, "Key2")
 
-  # Sleep for 1 second
-  time.sleep(1)
-
-  # List all keys
+  # List
   list_entries(stub)
 
+  # Blind Write
+  write_key(stub, "Key3", "Value3", -1)
+  # List
+  list_entries(stub)
 
-# def run(stub):
-#   # Blind write
-#   write_key(stub, "Key1", "Value1", -1)
-#   # Normal write
-#   write_key(stub, "Key1", "Value2", 1)
-#   # Version check failure
-#   write_key(stub, "Key1", "Value3", 1)
-#   # Version failure with key missing
-#   write_key(stub, "Key2", "Value3", 1)
+  # Delete with version check failure
+  delete_key(stub, "Key1", 1)
+  # Normal delete
+  delete_key(stub, "Key1", 2)
+  # Deletion of non-existent key
+  delete_key(stub, "Key1", 2)
+  # Delete
+  delete_key(stub, "Key3", 1)
 
-#   # Normal read
-#   read_key(stub, "Key1")
-#   # Non-existing key read
-#   read_key(stub, "Key2")
-
-#   # List
-#   list_entries(stub)
-
-#   # Blind Write
-#   write_key(stub, "Key3", "Value3", -1)
-#   # List
-#   list_entries(stub)
-
-#   # Delete with version check failure
-#   delete_key(stub, "Key1", 1)
-#   # Normal delete
-#   delete_key(stub, "Key1", 2)
-#   # Deletion of non-existent key
-#   delete_key(stub, "Key1", 2)
-#   # Delete
-#   delete_key(stub, "Key3", 1)
-
-#   # List
-#   list_entries(stub)
+  # List
+  list_entries(stub)
 
 
 if __name__ == '__main__':
@@ -128,14 +89,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     TIMEOUT = args.write_timeout
 
-    channel = grpc.insecure_channel('localhost:50050')
-    try:
-      grpc.channel_ready_future(channel).result(timeout=10)
-    except grpc.FutureTimeoutError:
-      sys.exit('Error connecting to server')
-    else:
-      stub = keyval_pb2_grpc.KeyValueStub(channel)
 
-    # experiment1_part1(stub)
-    # experiment1_part2(stub)
-    experiment2(stub)
+    run()

@@ -1,0 +1,341 @@
+-------------------------------------------------
+Experiment 1 (Part 1)
+-------------------------------------------------
+
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613748599.332645808","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613748599.833591072","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613748600.335757736","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613748600.837553276","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613748601.338688246","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+List Result:
+status {
+  server_id: 1
+  ok: true
+}
+entries {
+  key: "Key0"
+  value: "Value0"
+  current_version: 1
+}
+entries {
+  key: "Key1"
+  value: "Value1"
+  current_version: 1
+}
+entries {
+  key: "Key2"
+  value: "Value2"
+  current_version: 1
+}
+entries {
+  key: "Key3"
+  value: "Value3"
+  current_version: 1
+}
+entries {
+  key: "Key4"
+  value: "Value4"
+  current_version: 1
+}
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key0"
+deleted_value: "Value0"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key1"
+deleted_value: "Value1"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key2"
+deleted_value: "Value2"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key3"
+deleted_value: "Value3"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key4"
+deleted_value: "Value4"
+deleted_version: 1
+
+
+-------------------------------------------------
+Experiment 1 (Part 2)
+-------------------------------------------------
+
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key0"
+new_version: 1
+
+------------------------------
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key1"
+new_version: 1
+
+------------------------------
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key2"
+new_version: 1
+
+------------------------------
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key3"
+new_version: 1
+
+------------------------------
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key4"
+new_version: 1
+
+------------------------------
+List Result:
+status {
+  server_id: 1
+  ok: true
+}
+entries {
+  key: "Key0"
+  value: "Value0"
+  current_version: 1
+}
+entries {
+  key: "Key1"
+  value: "Value1"
+  current_version: 1
+}
+entries {
+  key: "Key2"
+  value: "Value2"
+  current_version: 1
+}
+entries {
+  key: "Key3"
+  value: "Value3"
+  current_version: 1
+}
+entries {
+  key: "Key4"
+  value: "Value4"
+  current_version: 1
+}
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key0"
+deleted_value: "Value0"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key1"
+deleted_value: "Value1"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key2"
+deleted_value: "Value2"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key3"
+deleted_value: "Value3"
+deleted_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key4"
+deleted_value: "Value4"
+deleted_version: 1
+
+
+-------------------------------------------------
+Experiment 1 Reportings
+-------------------------------------------------
+
+A >
+The number of successful RPCs for part 1 are 6
+The number of un-successful RPCs for part 1 are 5
+
+The number of successful RPCs for part 2 are 11
+The number of un-successful RPCs for part 2 are 0
+
+B >
+The numbers are less for part 1 because the write RPCs on the client side time out before the server is albe to send a reply.
+The server starts processing the request 1 second after it receives it and in the meantime the client thinks that there was a network failure or server crash. That is why the write RPCs at client failed in case of part 1.
+
+However, in part 2, the client waits for 1.5 seconds before it considers a request to have failed. Even though server starts processing the request after 1 seconds, it is able to process and send back a response to the client in the remaining 0.5 seconds. Hence, the client write RPC does not time out and succeeds.
+
+C >
+List returned the list of all key-value pairs i.e Key0...Key4 and Value0...Value4 in both the cases. In part 2, all the requests write requests were successful on both the client and server side and thus the reponse of list request is as expected. However, in part 1, the client thinks that the Write RPC failed, but in reality the server was slow in processing the request. When the client sends the server a list request after 5 seconds, the server is done processing all the write requests the client had sent earlier, and thus list gives the value of all the stored keys.
+
+
+-------------------------------------------------
+Experiment 2 (Part 1)
+-------------------------------------------------
+
+<_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1613751614.284269528","description":"Error received from peer ipv4:127.0.0.1:50050","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Deadline Exceeded","grpc_status":4}"
+>
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  error: "Key not present Key1"
+}
+
+------------------------------
+List Result:
+status {
+  server_id: 1
+  ok: true
+}
+entries {
+  key: "Key1"
+  value: "Value1"
+  current_version: 1
+}
+
+
+-------------------------------------------------
+Experiment 2 (Part 2)
+-------------------------------------------------
+
+Write Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key1"
+new_version: 1
+
+------------------------------
+Delete Result:
+status {
+  server_id: 1
+  ok: true
+}
+key: "Key1"
+deleted_value: "Value1"
+deleted_version: 1
+
+------------------------------
+List Result:
+status {
+  server_id: 1
+  ok: true
+}
+
+
+-------------------------------------------------
+Experiment 2 Reportings
+-------------------------------------------------
+
+A >
+Both write and delete calls in part 1 failed.
+Whereas, both write and delete calls in part 2 succeeded.
+
+B >
+List returns different results in part 1 and part 2.
+
+In part 1, the write RPC at client times out. At the server side, the write request is processed 1 second after the request is received. When the server receives a delete RPC request, the write operation hasn't been performed at the server side. Therefore, the delete request is unsuccessful in part 1. However, the write operation gets completed at the server side later and when the client sends a list RPC request, it gets 'Key1' as one of the stored keys.
+
+In part 2, the client waits for 1.5 seconds until the write request succeeds. The server is able to perform the write request and return a response to the client in these 1.5 seconds, and as a result the client sees a success status. Thus, when the client sends a delete RPC request, the key is stored on the server and the delete operation succeeds. Because of this, the list operation in part 2 return an empty list of key-value pairs.
